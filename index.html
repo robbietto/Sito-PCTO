@@ -1,0 +1,864 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Portfolio PCTO di Roberto Carello — Home interattiva con login demo e presentazione del percorso.">
+  <title>Portfolio PCTO — Roberto Carello</title>
+  <link rel="icon" href="image/favicon.jpg" type="image/jpeg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- DNA comune: navbar, footer, reset, variabili -->
+  <link rel="stylesheet" href="stili.css">
+
+  <style>
+    /* ============================================================
+       index.html — Stili specifici della Home (5° anno)
+       Livello di complessità: MASSIMO
+       JavaScript per: login, sessionStorage, tab dinamici, orologio
+       CSS: layout grid avanzato, transizioni, animazioni, glassmorphism
+       ============================================================ */
+
+    /* Contenitore principale */
+    .page-main {
+      flex: 1;
+      width: min(1200px, calc(100% - 2rem));
+      margin: 0 auto;
+      padding: 1.5rem 0 3rem;
+      display: grid;
+      gap: 1.5rem;
+    }
+
+    section { scroll-margin-top: 80px; }
+
+    /* ── Hero con login ─────────────────────────────────────── */
+    .hero-section {
+      position: relative;
+      overflow: hidden;
+      border-radius: var(--raggio-lg);
+      border: var(--bordo);
+      box-shadow: var(--ombra);
+
+      /* Quando l'utente NON è autenticato: solo il login card, centrato */
+      min-height: calc(100vh - 80px);
+      display: grid;
+      grid-template-columns: minmax(0, 1.3fr) minmax(340px, 0.8fr);
+      gap: 1.5rem;
+      align-items: stretch;
+
+      background:
+        linear-gradient(145deg, rgba(13,27,42,0.88), rgba(17,35,58,0.55)),
+        url('image/home.jpg') center/cover no-repeat;
+    }
+
+    /* Overlay luminoso */
+    .hero-section::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(150deg, rgba(13,27,42,0.70), rgba(13,27,42,0.22) 55%, rgba(13,27,42,0.60)),
+        radial-gradient(circle at top left, rgba(37,99,235,0.14), transparent 42%);
+      pointer-events: none;
+    }
+
+    /* ── Lato sinistro hero ─ */
+    .hero-copy {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 1.2rem;
+      padding: clamp(1.2rem, 4vw, 2.8rem);
+    }
+
+    .hero-copy h1 {
+      font-size: clamp(2.8rem, 6vw, 5.4rem);
+      line-height: 0.96;
+      font-weight: 800;
+    }
+
+    .hero-copy h1 span {
+      background: linear-gradient(135deg, var(--blu-chiaro), #a5b4fc);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .hero-desc {
+      color: var(--bianco-muted);
+      line-height: 1.8;
+      max-width: 60ch;
+      font-size: 1.04rem;
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+    }
+
+    .hero-badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+      margin-top: 0.5rem;
+    }
+
+    .hero-badge {
+      padding: 0.4rem 0.9rem;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.06);
+      border: var(--bordo);
+      font-size: 0.88rem;
+      color: var(--bianco-muted);
+      backdrop-filter: blur(8px);
+    }
+
+    /* ── Login card ─────────────────────────────────────────── */
+    .login-card {
+      position: relative;
+      z-index: 1;
+      align-self: center;
+      margin: 1.5rem 1.5rem 1.5rem 0;
+      padding: 1.75rem;
+      border-radius: var(--raggio-lg);
+
+      /* Glassmorphism: competenza 5° anno */
+      background: linear-gradient(180deg, rgba(17,35,58,0.96), rgba(13,27,42,0.88));
+      border: var(--bordo);
+      box-shadow: var(--ombra), 0 0 0 1px rgba(96,165,250,0.05) inset;
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+
+      display: grid;
+      gap: 1rem;
+    }
+
+    .login-card h2 {
+      font-size: 1.45rem;
+      font-weight: 800;
+    }
+
+    .card-subtitle {
+      color: var(--bianco-muted);
+      font-size: 0.92rem;
+      line-height: 1.7;
+    }
+
+    /* Form */
+    .login-form {
+      display: grid;
+      gap: 0.85rem;
+    }
+
+    .login-form label {
+      font-size: 0.88rem;
+      color: var(--bianco-muted);
+      font-weight: 600;
+    }
+
+    .login-form input {
+      width: 100%;
+      padding: 0.85rem 1rem;
+      border-radius: var(--raggio);
+      border: 1px solid rgba(255,255,255,0.12);
+      background: rgba(255,255,255,0.05);
+      color: var(--bianco);
+      font-family: var(--font-sans);
+      font-size: 0.95rem;
+      outline: none;
+      transition: border-color 0.25s, box-shadow 0.25s, background 0.25s;
+    }
+
+    .login-form input::placeholder { color: rgba(240,244,248,0.36); }
+
+    .login-form input:focus {
+      border-color: rgba(96,165,250,0.55);
+      box-shadow: 0 0 0 4px rgba(37,99,235,0.14);
+      background: rgba(255,255,255,0.08);
+    }
+
+    .login-btn {
+      width: 100%;
+      margin-top: 0.3rem;
+      padding: 0.9rem;
+      border-radius: 999px;
+      border: none;
+      background: linear-gradient(135deg, var(--blu-accent), #1d4ed8);
+      color: #fff;
+      font-family: var(--font-sans);
+      font-size: 1rem;
+      font-weight: 800;
+      cursor: pointer;
+      box-shadow: 0 8px 24px rgba(37,99,235,0.38);
+      transition: transform 0.2s, filter 0.2s;
+    }
+
+    .login-btn:hover { transform: translateY(-2px); filter: saturate(1.1); }
+    .login-btn:active { transform: translateY(0); }
+
+    /* Stato login */
+    .login-status {
+      font-size: 0.9rem;
+      color: var(--bianco-muted);
+      line-height: 1.6;
+      min-height: 1.4em;
+      transition: color 0.2s;
+    }
+
+    .login-status.is-error   { color: #fca5a5; }
+    .login-status.is-success { color: #6ee7b7; }
+
+    .login-hint {
+      font-size: 0.82rem;
+      color: rgba(148,163,184,0.70);
+    }
+
+    /* Sessione attiva */
+    .session-box {
+      padding: 1rem;
+      border-radius: var(--raggio);
+      background: rgba(255,255,255,0.05);
+      border: var(--bordo-accent);
+      display: grid;
+      gap: 0.5rem;
+    }
+
+    .session-label {
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: var(--blu-chiaro);
+    }
+
+    .session-name {
+      font-size: 1.1rem;
+      font-weight: 700;
+    }
+
+    .session-msg {
+      font-size: 0.88rem;
+      color: var(--bianco-muted);
+      line-height: 1.6;
+    }
+
+    .logout-btn {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.5rem 1.1rem;
+      border-radius: 999px;
+      border: 1px solid rgba(252,165,165,0.38);
+      background: transparent;
+      color: #fca5a5;
+      font-family: var(--font-sans);
+      font-size: 0.88rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.2s;
+    }
+
+    .logout-btn:hover {
+      background: rgba(252,165,165,0.12);
+      transform: translateY(-1px);
+    }
+
+    /* ── Sezioni di contenuto (visibili solo dopo login) ─────── */
+    .content-section {
+      padding: 1.5rem;
+      border-radius: var(--raggio-lg);
+      background: linear-gradient(180deg, rgba(17,35,58,0.88), rgba(13,27,42,0.72));
+      border: var(--bordo);
+      box-shadow: var(--ombra-sm);
+    }
+
+    .section-head {
+      margin-bottom: 1.25rem;
+    }
+
+    .section-head h2 {
+      font-size: clamp(1.6rem, 3vw, 2.4rem);
+      font-weight: 800;
+      margin-top: 0.3rem;
+    }
+
+    /* Riepilogo terza */
+    .summary-grid {
+      display: grid;
+      grid-template-columns: minmax(0,1.1fr) minmax(250px,0.9fr);
+      gap: 1rem;
+    }
+
+    .summary-text {
+      padding: 1.1rem;
+      border-radius: var(--raggio);
+      background: rgba(255,255,255,0.04);
+      border: var(--bordo);
+      color: var(--bianco-muted);
+      line-height: 1.8;
+    }
+
+    .summary-tiles {
+      display: grid;
+      gap: 0.7rem;
+    }
+
+    .tile {
+      padding: 0.85rem 1rem;
+      border-radius: var(--raggio);
+      background: rgba(255,255,255,0.05);
+      border: var(--bordo);
+      transition: border-color 0.2s, background 0.2s;
+    }
+
+    .tile:hover {
+      border-color: rgba(96,165,250,0.35);
+      background: rgba(96,165,250,0.07);
+    }
+
+    .tile strong { display: block; font-size: 0.96rem; margin-bottom: 0.2rem; }
+    .tile span   { font-size: 0.88rem; color: var(--bianco-muted); }
+
+    .section-bottom {
+      margin-top: 1rem;
+      display: flex;
+      justify-content: flex-end;
+    }
+
+    /* Tab dinamici — sezione quarta */
+    .dynamic-layout {
+      display: grid;
+      grid-template-columns: minmax(240px,0.9fr) minmax(0,1.1fr);
+      gap: 1rem;
+    }
+
+    .tab-list { display: grid; gap: 0.7rem; }
+
+    .tab-btn {
+      width: 100%;
+      padding: 0.9rem 1rem;
+      border-radius: var(--raggio);
+      border: var(--bordo);
+      background: rgba(255,255,255,0.04);
+      color: var(--bianco);
+      font-family: var(--font-sans);
+      text-align: left;
+      cursor: pointer;
+      transition: background 0.2s, border-color 0.2s, transform 0.2s, box-shadow 0.2s;
+    }
+
+    .tab-btn strong { display: block; margin-bottom: 0.2rem; }
+    .tab-btn span   { display: block; color: var(--bianco-muted); font-size: 0.88rem; }
+
+    .tab-btn:hover    { transform: translateX(3px); border-color: rgba(96,165,250,0.35); }
+    .tab-btn.is-active {
+      background: rgba(37,99,235,0.20);
+      border-color: rgba(96,165,250,0.50);
+      box-shadow: 0 6px 20px rgba(0,0,0,0.22);
+      transform: translateX(3px);
+    }
+
+    .tab-panel {
+      padding: 1.2rem;
+      border-radius: var(--raggio);
+      background: rgba(255,255,255,0.04);
+      border: var(--bordo);
+      display: grid;
+      gap: 0.85rem;
+    }
+
+    .tab-kicker {
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: var(--blu-chiaro);
+    }
+
+    .tab-panel h3 {
+      font-size: clamp(1.2rem, 2.5vw, 1.75rem);
+      font-weight: 800;
+    }
+
+    .tab-panel p  { color: var(--bianco-muted); line-height: 1.78; }
+
+    .tab-panel ul {
+      list-style: disc;
+      padding-left: 1.2rem;
+      display: grid;
+      gap: 0.45rem;
+      color: var(--bianco-muted);
+      line-height: 1.65;
+    }
+
+    /* Barra avanzamento */
+    .progress-wrap { display: grid; gap: 0.4rem; margin-top: 0.5rem; }
+    .progress-top  { display: flex; justify-content: space-between; color: var(--bianco-muted); font-size: 0.88rem; }
+
+    .progress-bar-bg {
+      height: 10px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.08);
+      border: var(--bordo);
+      overflow: hidden;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, var(--blu-accent), var(--blu-chiaro));
+      width: 42%;
+      transition: width 0.45s ease;
+    }
+
+    /* Footer sezione */
+    .dyn-footer {
+      margin-top: 1rem;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.4rem 0.9rem;
+      border-radius: 999px;
+      border: var(--bordo);
+      background: rgba(255,255,255,0.06);
+      font-size: 0.85rem;
+      color: var(--bianco-muted);
+    }
+
+    /* ── Commenti PHP (visibili nel markup, spiegati all'orale) ─ */
+    /* Vedi commenti nel <script> e nell'HTML sottostante. */
+
+    /* ── Responsive ─────────────────────────────────────────── */
+    @media (max-width: 920px) {
+      .hero-section { grid-template-columns: 1fr; min-height: auto; }
+      .login-card   { margin: 0 0 1.5rem; }
+      .summary-grid,
+      .dynamic-layout { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 600px) {
+      .page-main { width: 100%; padding: 0.75rem 0.75rem 2.5rem; }
+      .hero-section,
+      .content-section { border-radius: var(--raggio); }
+      .hero-copy h1 { font-size: clamp(2.2rem, 14vw, 3.2rem); }
+    }
+
+    /* ── Stato NOT autenticato ──────────────────────────────── */
+    body:not(.is-authenticated) .hero-copy,
+    body:not(.is-authenticated) .content-section {
+      display: none;
+    }
+
+    body:not(.is-authenticated) .hero-section {
+      grid-template-columns: minmax(0,1fr);
+      min-height: calc(100vh - 130px);
+      justify-items: center;
+      align-items: center;
+    }
+
+    body:not(.is-authenticated) .login-card {
+      width: min(92vw, 440px);
+      justify-self: center;
+      margin: 0;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ══════════════════════════════════════════
+       NAVBAR — identica su tutte e tre le pagine
+  ══════════════════════════════════════════════ -->
+  <header class="site-header">
+    <nav class="site-nav" aria-label="Navigazione principale">
+      <a class="nav-brand" href="index.html">
+        <span class="brand-badge">PCTO</span>
+        <span class="brand-label">Roberto Carello</span>
+      </a>
+      <button class="nav-toggle" aria-label="Apri menu" aria-expanded="false" id="nav-toggle">
+        <svg width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <line x1="3" y1="6" x2="19" y2="6"/>
+          <line x1="3" y1="11" x2="19" y2="11"/>
+          <line x1="3" y1="16" x2="19" y2="16"/>
+        </svg>
+      </button>
+      <ul class="nav-links" id="nav-links">
+        <li><a href="index.html"         class="nav-link nav-link--active">Home (5°)</a></li>
+        <li><a href="pages/terza.html"   class="nav-link">Stage 3° Anno</a></li>
+        <li><a href="pages/quarta.html"  class="nav-link">Stage 4° Anno</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <!-- ══════════════════════════════════════════
+       MAIN — contenuto specifico della home
+  ══════════════════════════════════════════════ -->
+  <main class="page-main">
+
+    <!-- SEZIONE HERO + LOGIN ──────────────────── -->
+    <section class="hero-section" id="accesso">
+
+      <!-- Lato sinistro: presentazione (visibile solo dopo login) -->
+      <div class="hero-copy">
+        <p class="eyebrow">Presentazione per l'esame orale</p>
+        <h1>Il mio <span>Portfolio</span><br>PCTO</h1>
+        <p class="hero-desc">
+          Un percorso che parte dal Content Management in terza, evolve verso
+          hardware, networking e Go in quarta, e si completerebbe con PHP
+          lato server e sicurezza informatica in quinta.
+        </p>
+        <div class="hero-actions">
+          <a class="btn" href="#terza">Esperienza 3° anno</a>
+          <a class="btn btn--ghost" href="#quarta">Esperienza 4° anno</a>
+        </div>
+        <div class="hero-badges">
+          <span class="hero-badge">WordPress · Drupal</span>
+          <span class="hero-badge">Go · Dart · Networking</span>
+          <span class="hero-badge">PHP · Sicurezza (5°)</span>
+        </div>
+      </div>
+
+      <!-- Lato destro: login card -->
+      <aside class="login-card" id="login-card" aria-label="Accesso demo">
+
+        <!-- ─── COMMENTO per l'esame orale ───────────────────────────────
+             In quinta, con PHP, questa sezione diventerebbe un vero sistema
+             di autenticazione lato server:
+               - Il form invierebbe una POST a login.php
+               - PHP verificherebbe le credenziali contro un database MySQL
+               - In caso di successo, $_SESSION['user'] = $username
+               - Ogni pagina protetta farebbe session_start() e controllerebbe $_SESSION
+               - La password sarebbe salvata come hash con password_hash() / password_verify()
+               - CSRF token nel form per prevenire attacchi cross-site
+             ────────────────────────────────────────────────────────────── -->
+
+        <p class="eyebrow">Accesso demo</p>
+        <h2>Login in stile PHP</h2>
+        <p class="card-subtitle">
+          La sessione vive nel browser tramite sessionStorage —
+          una simulazione di quello che farebbe <code>$_SESSION</code> in PHP.
+        </p>
+
+        <!-- Form login -->
+        <form class="login-form" id="login-form" novalidate>
+          <div>
+            <label for="login-user">Nome utente</label>
+            <input id="login-user" name="username" type="text"
+                   placeholder="studente" autocomplete="username" required>
+          </div>
+          <div>
+            <label for="login-pass">Password</label>
+            <input id="login-pass" name="password" type="password"
+                   placeholder="pcto2026" autocomplete="current-password" required>
+          </div>
+          <button type="submit" class="login-btn">Entra nella demo</button>
+        </form>
+
+        <!-- Box sessione attiva (nascosto di default) -->
+        <div class="session-box" id="session-box" hidden>
+          <p class="session-label">Sessione attiva</p>
+          <p class="session-name" id="session-name">Benvenuto</p>
+          <p class="session-msg" id="session-msg"></p>
+          <button type="button" class="logout-btn" id="logout-btn">Esci</button>
+        </div>
+
+        <p class="login-hint">Demo: usa qualsiasi nome + password <strong>pcto2026</strong></p>
+        <p class="login-status" id="login-status" aria-live="polite">
+          Inserisci le credenziali per accedere al portfolio.
+        </p>
+      </aside>
+    </section>
+
+    <!-- SEZIONE TERZA (visibile solo dopo login) ──── -->
+    <section class="content-section" id="terza">
+      <div class="section-head">
+        <p class="eyebrow">Terza superiore · Weevo S.R.L.</p>
+        <h2>Content Management &amp; Web Publishing</h2>
+      </div>
+
+      <div class="summary-grid">
+        <p class="summary-text">
+          Durante il PCTO in terza ho lavorato su progetti reali di pubblicazione web:
+          gestione di notizie multilingua con Drupal, creazione di contenuti per Legambiente
+          in WordPress, e progettazione + pubblicazione di una single page per un ristorante
+          greco con Novi Builder e FileZilla. Un'esperienza che ha costruito solide basi
+          nella comprensione del ciclo di vita di un sito web.
+        </p>
+
+        <div class="summary-tiles">
+          <div class="tile">
+            <strong>WordPress</strong>
+            <span>Gestione contenuti, caricamento articoli e aggiornamento struttura.</span>
+          </div>
+          <div class="tile">
+            <strong>Drupal 8</strong>
+            <span>Notizie in italiano, inglese e tedesco per il sito Ocmis.</span>
+          </div>
+          <div class="tile">
+            <strong>Novi Builder</strong>
+            <span>Single page per un ristorante a Creta, con cookie policy.</span>
+          </div>
+          <div class="tile">
+            <strong>FileZilla</strong>
+            <span>Deploy su server web, verifica live e correzioni.</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-bottom">
+        <a href="pages/terza.html" class="btn">Vai ai dettagli →</a>
+      </div>
+    </section>
+
+    <!-- SEZIONE QUARTA (visibile solo dopo login) ─── -->
+    <section class="content-section" id="quarta">
+      <div class="section-head">
+        <p class="eyebrow">Quarta superiore · Trend Servizi S.R.L.</p>
+        <h2>Hardware, Networking &amp; Sviluppo</h2>
+      </div>
+
+      <div class="dynamic-layout">
+        <!-- Tab switcher -->
+        <div class="tab-list" role="tablist" aria-label="Fasi dello stage">
+          <button class="tab-btn is-active" type="button" data-step="0" aria-pressed="true">
+            <strong>Login &amp; Sessione</strong>
+            <span>Simulazione PHP lato client</span>
+          </button>
+          <button class="tab-btn" type="button" data-step="1" aria-pressed="false">
+            <strong>Contenuti dinamici</strong>
+            <span>Card generate da JavaScript</span>
+          </button>
+          <button class="tab-btn" type="button" data-step="2" aria-pressed="false">
+            <strong>Presentazione finale</strong>
+            <span>Guida all'esame orale</span>
+          </button>
+        </div>
+
+        <!-- Pannello dinamico -->
+        <article class="tab-panel" aria-live="polite">
+          <p class="tab-kicker" id="tab-kicker">Step 01</p>
+          <h3 id="tab-title">Login finto con sessione locale</h3>
+          <p id="tab-desc">
+            Il form non comunica con un server reale, ma salva la sessione in
+            sessionStorage per mostrare il comportamento che farei con PHP in quinta.
+          </p>
+          <ul id="tab-points">
+            <li>Validazione credenziali con JavaScript.</li>
+            <li>Persistenza tramite sessionStorage (simula $_SESSION).</li>
+            <li>Feedback immediato senza ricaricare la pagina.</li>
+          </ul>
+          <div class="progress-wrap">
+            <div class="progress-top">
+              <span>Avanzamento demo</span>
+              <strong id="tab-pct">42%</strong>
+            </div>
+            <div class="progress-bar-bg">
+              <div class="progress-bar-fill" id="tab-bar"></div>
+            </div>
+          </div>
+        </article>
+      </div>
+
+      <div class="dyn-footer">
+        <span class="chip" id="dyn-badge">Modalità: login demo</span>
+        <span class="chip" id="dyn-clock">--:--</span>
+        <a href="pages/quarta.html" class="btn">Vai ai dettagli →</a>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ══════════════════════════════════════════
+       FOOTER — identico su tutte e tre le pagine
+  ══════════════════════════════════════════════ -->
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <p class="footer-copy">© 2025 Roberto Carello — Portfolio PCTO · Classe 5I Informatica</p>
+      <nav class="footer-nav" aria-label="Link rapidi">
+        <a href="index.html">Home (5°)</a>
+        <a href="pages/terza.html">Stage 3°</a>
+        <a href="pages/quarta.html">Stage 4°</a>
+      </nav>
+    </div>
+  </footer>
+
+  <!-- ══════════════════════════════════════════
+       JAVASCRIPT — Livello 5°: massima complessità
+       Gestisce: login, sessione, tab dinamici, orologio
+  ══════════════════════════════════════════════ -->
+  <script>
+    /* ─── Costanti ─────────────────────────────────────────── */
+    const DEMO_PASSWORD = 'pcto2026';
+    const SESSION_KEY   = 'pcto-demo-user';
+
+    /* ─── Riferimenti DOM ───────────────────────────────────── */
+    const loginForm   = document.getElementById('login-form');
+    const loginUser   = document.getElementById('login-user');
+    const loginPass   = document.getElementById('login-pass');
+    const loginStatus = document.getElementById('login-status');
+    const sessionBox  = document.getElementById('session-box');
+    const sessionName = document.getElementById('session-name');
+    const sessionMsg  = document.getElementById('session-msg');
+    const logoutBtn   = document.getElementById('logout-btn');
+
+    const tabBtns   = Array.from(document.querySelectorAll('.tab-btn'));
+    const tabKicker = document.getElementById('tab-kicker');
+    const tabTitle  = document.getElementById('tab-title');
+    const tabDesc   = document.getElementById('tab-desc');
+    const tabPoints = document.getElementById('tab-points');
+    const tabPct    = document.getElementById('tab-pct');
+    const tabBar    = document.getElementById('tab-bar');
+    const dynBadge  = document.getElementById('dyn-badge');
+    const dynClock  = document.getElementById('dyn-clock');
+    const navToggle = document.getElementById('nav-toggle');
+    const navLinks  = document.getElementById('nav-links');
+
+    /* ─── Dati tab dinamici ─────────────────────────────────── */
+    /*
+     * [COMMENTO 5° ANNO]
+     * In quinta, questi dati potrebbero venire da un'API PHP:
+     *   fetch('/api/steps.php')
+     *     .then(r => r.json())
+     *     .then(data => renderStep(data[0]));
+     * Con autenticazione tramite token JWT o SESSION.
+     */
+    const STEPS = [
+      {
+        kicker: 'Step 01', pct: 42, badge: 'Modalità: login demo',
+        title: 'Login finto con sessione locale',
+        desc: 'Il form non comunica con un server reale, ma salva la sessione in sessionStorage per simulare $_SESSION di PHP.',
+        points: ['Validazione credenziali con JavaScript.','Persistenza tramite sessionStorage.','Feedback immediato senza reload.']
+      },
+      {
+        kicker: 'Step 02', pct: 68, badge: 'Modalità: rendering dinamico',
+        title: 'Contenuti generati dinamicamente',
+        desc: 'I blocchi vengono aggiornati da un array di dati — logica simile al rendering di template PHP con Twig o Blade.',
+        points: ['Card create da un array JavaScript.','Aggiornamento DOM senza ricaricare.','Stato visivo differenziato per ogni fase.']
+      },
+      {
+        kicker: 'Step 03', pct: 89, badge: 'Modalità: presentazione finale',
+        title: 'Presentazione pronta per l\'esame',
+        desc: 'La navigazione tra tab, la barra di avanzamento e i badge guidano la spiegazione orale in modo chiaro e sequenziale.',
+        points: ['Struttura ordinata e leggibile.','Riferimento diretto ai due anni di stage.','Rimando alle pagine di dettaglio.']
+      }
+    ];
+
+    /* ─── Funzioni login ────────────────────────────────────── */
+    function setStatus(msg, type = 'neutral') {
+      loginStatus.className = 'login-status' + (type !== 'neutral' ? ` is-${type}` : '');
+      loginStatus.textContent = msg;
+    }
+
+    function renderAuthenticated(name, restored = false) {
+      document.body.classList.add('is-authenticated');
+      loginForm.hidden = true;
+      sessionBox.hidden = false;
+      sessionBox.removeAttribute('hidden');
+      // Messaggio di benvenuto — requisito del progetto
+      sessionName.textContent = `Benvenuto nel Portfolio PCTO di Roberto Carello, ${name}!`;
+      sessionMsg.textContent = restored
+        ? 'Sessione ripristinata dal browser — come $_SESSION in PHP.'
+        : 'Sessione attiva nel browser — simulazione di $_SESSION in PHP.';
+      setStatus(`Sessione demo attiva per "${name}".`, 'success');
+    }
+
+    function renderLoggedOut() {
+      document.body.classList.remove('is-authenticated');
+      loginForm.hidden = false;
+      sessionBox.hidden = true;
+      loginForm.reset();
+      setStatus('Inserisci le credenziali per accedere al portfolio.');
+      loginUser.focus();
+    }
+
+    /* Gestione submit form */
+    loginForm.addEventListener('submit', e => {
+      e.preventDefault();
+      const name = loginUser.value.trim();
+      const pass = loginPass.value;
+
+      /*
+       * [COMMENTO 5° ANNO — Validazione lato client]
+       * In quinta aggiungerei:
+       *   - Sanitizzazione input con DOMPurify
+       *   - Rate limiting (max 5 tentativi, poi blocco 30s)
+       *   - CSRF token inviato come header X-CSRF-Token
+       *   - La vera verifica avverrebbe SOLO lato server con PHP
+       *     usando password_verify($pass, $hash_dal_db)
+       */
+
+      if (!name) {
+        setStatus('Inserisci un nome utente.', 'error');
+        loginUser.focus();
+        return;
+      }
+      if (pass !== DEMO_PASSWORD) {
+        setStatus('Password errata. Usa "pcto2026".', 'error');
+        loginPass.value = '';
+        loginPass.focus();
+        return;
+      }
+
+      sessionStorage.setItem(SESSION_KEY, name);
+      renderAuthenticated(name);
+    });
+
+    /* Logout */
+    logoutBtn.addEventListener('click', () => {
+      sessionStorage.removeItem(SESSION_KEY);
+      renderLoggedOut();
+    });
+
+    /* ─── Tab dinamici ──────────────────────────────────────── */
+    function renderStep(i) {
+      const s = STEPS[i];
+      tabBtns.forEach((btn, idx) => {
+        btn.classList.toggle('is-active', idx === i);
+        btn.setAttribute('aria-pressed', String(idx === i));
+      });
+      tabKicker.textContent = s.kicker;
+      tabTitle.textContent  = s.title;
+      tabDesc.textContent   = s.desc;
+      tabPoints.innerHTML   = s.points.map(p => `<li>${p}</li>`).join('');
+      tabPct.textContent    = `${s.pct}%`;
+      tabBar.style.width    = `${s.pct}%`;
+      dynBadge.textContent  = s.badge;
+    }
+
+    tabBtns.forEach(btn =>
+      btn.addEventListener('click', () => renderStep(Number(btn.dataset.step)))
+    );
+
+    /* ─── Orologio live ─────────────────────────────────────── */
+    function updateClock() {
+      dynClock.textContent = new Intl.DateTimeFormat('it-IT', {
+        hour: '2-digit', minute: '2-digit'
+      }).format(new Date());
+    }
+
+    /* ─── Hamburger mobile ──────────────────────────────────── */
+    navToggle.addEventListener('click', () => {
+      const open = navLinks.classList.toggle('is-open');
+      navToggle.setAttribute('aria-expanded', String(open));
+    });
+
+    /* ─── Inizializzazione ──────────────────────────────────── */
+    updateClock();
+    setInterval(updateClock, 60_000);
+    renderStep(0);
+
+    // Ripristina sessione se già presente (simula session_start() di PHP)
+    const saved = sessionStorage.getItem(SESSION_KEY);
+    if (saved) renderAuthenticated(saved, true);
+  </script>
+</body>
+</html>

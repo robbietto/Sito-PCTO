@@ -1,0 +1,1085 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="PCTO 4° anno — Esperienza presso Trend Servizi S.R.L.: hardware, networking, Go, Dart e supporto tecnico.">
+  <title>Stage 4° Anno — Trend Servizi S.R.L. | Portfolio PCTO</title>
+  <link rel="icon" href="../image/favicon.jpg" type="image/jpeg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- DNA comune -->
+  <link rel="stylesheet" href="../stili.css">
+
+  <style>
+    /* ============================================================
+       quarta.html — Stili specifici della pagina 4° anno
+       Livello di complessità: INTERMEDIO — "evoluzione dinamica"
+       Tecnica: Flexbox + CSS Grid per layout, JavaScript per
+         interattività (filtro badge skill, switcher attività,
+         animazioni reveal, orologio live)
+       Dimostra: capacità di comporre layout moderni e aggiungere
+         comportamento dinamico controllato.
+       ============================================================ */
+
+    /* Layout principale */
+    .page-main {
+      flex: 1;
+      width: min(1180px, calc(100% - 2rem));
+      margin: 0 auto;
+      padding: 1.5rem 0 3.5rem;
+    }
+
+    section { scroll-margin-top: 80px; }
+
+    /* ── Hero (Flexbox + Grid) ───────────────────────────────── */
+    .page-hero {
+      border-radius: 28px;
+      border: var(--bordo);
+      box-shadow: var(--ombra);
+      overflow: hidden;
+      background:
+        linear-gradient(145deg, rgba(13,27,42,0.90), rgba(17,35,58,0.65)),
+        radial-gradient(circle at top right, rgba(37,99,235,0.15), transparent 40%);
+    }
+
+    .hero-inner {
+      display: grid;
+      grid-template-columns: minmax(0, 1.35fr) minmax(280px, 0.65fr);
+      gap: 1.25rem;
+      align-items: center;
+      padding: clamp(1.4rem, 3vw, 2.4rem);
+    }
+
+    .hero-copy { display: flex; flex-direction: column; gap: 1rem; }
+
+    .hero-copy h1 {
+      font-size: clamp(2.4rem, 5.5vw, 4.8rem);
+      font-weight: 800;
+      line-height: 0.96;
+    }
+
+    .hero-copy h1 em {
+      font-style: normal;
+      background: linear-gradient(135deg, #60a5fa, #818cf8);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .hero-copy p {
+      color: var(--bianco-muted);
+      line-height: 1.78;
+      max-width: 58ch;
+    }
+
+    .hero-actions { display: flex; flex-wrap: wrap; gap: 0.75rem; }
+
+    /* Chips hero (Flexbox) */
+    .hero-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.55rem;
+      list-style: none;
+    }
+
+    .hero-chip {
+      padding: 0.38rem 0.85rem;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.06);
+      border: var(--bordo);
+      font-size: 0.85rem;
+      color: var(--bianco-muted);
+    }
+
+    /* Card riepilogo (destra hero) */
+    .hero-card {
+      padding: 1.25rem;
+      border-radius: 22px;
+      background: rgba(13,27,42,0.92);
+      border: var(--bordo);
+      box-shadow: var(--ombra-sm);
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .company-mark {
+      display: flex;
+      align-items: center;
+      gap: 0.9rem;
+      padding: 0.9rem;
+      border-radius: 16px;
+      background: rgba(255,255,255,0.05);
+      border: var(--bordo);
+    }
+
+    .mark-badge {
+      width: 60px;
+      height: 60px;
+      border-radius: 16px;
+      background: linear-gradient(135deg, var(--blu-accent), #818cf8);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+      font-weight: 900;
+      color: #fff;
+      flex-shrink: 0;
+    }
+
+    .mark-info p   { color: var(--bianco-muted); font-size: 0.85rem; margin: 0; }
+    .mark-info h2  { font-size: 1.05rem; font-weight: 800; margin: 0.15rem 0 0; }
+
+    /* Fatti chiave (Grid 2 colonne) */
+    .hero-facts { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; }
+
+    .fact {
+      padding: 0.7rem;
+      border-radius: 12px;
+      background: rgba(255,255,255,0.04);
+      border: var(--bordo);
+    }
+
+    .fact dt {
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--blu-chiaro);
+      margin-bottom: 0.25rem;
+    }
+
+    .fact dd { color: var(--bianco-muted); font-size: 0.88rem; line-height: 1.5; }
+
+    /* Logo azienda */
+    .trend-logo {
+      max-width: 140px;
+      height: auto;
+      filter: brightness(1.1);
+      border-radius: 8px;
+    }
+
+    /* ── Pannelli sezione generici ───────────────────────────── */
+    .panel {
+      padding: 1.4rem;
+      border-radius: 24px;
+      border: var(--bordo);
+      box-shadow: var(--ombra-sm);
+      background: linear-gradient(180deg, rgba(17,35,58,0.88), rgba(13,27,42,0.72));
+    }
+
+    /* Animazione reveal — JavaScript + IntersectionObserver */
+    .panel.reveal { opacity: 0; transform: translateY(20px); transition: opacity 0.6s ease, transform 0.6s ease; }
+    .panel.reveal.visible { opacity: 1; transform: none; }
+
+    .section-head { margin-bottom: 1.25rem; }
+
+    .section-head h2 {
+      font-size: clamp(1.55rem, 3vw, 2.3rem);
+      font-weight: 800;
+      margin-top: 0.3rem;
+    }
+
+    .section-note { color: var(--bianco-muted); line-height: 1.75; margin-top: 0.4rem; font-size: 0.95rem; }
+
+    /* ── Azienda: Grid 2 colonne ─────────────────────────────── */
+    .company-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.1fr) minmax(260px, 0.9fr);
+      gap: 1rem;
+    }
+
+    .company-story {
+      padding: 1.1rem;
+      border-radius: var(--raggio);
+      background: rgba(255,255,255,0.04);
+      border: var(--bordo);
+    }
+
+    .company-story p { color: var(--bianco-muted); line-height: 1.78; margin-bottom: 0.75rem; }
+    .company-story p:last-child { margin-bottom: 0; }
+
+    /* Stat grid 2×2 */
+    .stat-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.6rem;
+    }
+
+    .stat-card {
+      padding: 0.8rem;
+      border-radius: 12px;
+      background: rgba(255,255,255,0.04);
+      border: var(--bordo);
+    }
+
+    .stat-card strong {
+      display: block;
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--blu-chiaro);
+      margin-bottom: 0.3rem;
+    }
+
+    .stat-card span { color: var(--bianco-muted); font-size: 0.88rem; line-height: 1.5; }
+
+    /* Office cards: Flexbox 3 colonne */
+    .office-flex {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.7rem;
+      margin-top: 0.9rem;
+    }
+
+    .office-card {
+      flex: 1 1 160px;
+      padding: 0.9rem;
+      border-radius: 12px;
+      background: rgba(255,255,255,0.05);
+      border: var(--bordo);
+    }
+
+    .office-card h3 { font-size: 0.96rem; font-weight: 700; margin-bottom: 0.3rem; }
+    .office-card p  { color: var(--bianco-muted); font-size: 0.88rem; line-height: 1.6; margin: 0; }
+
+    /* ── Switcher attività ───────────────────────────────────── */
+    .activity-layout {
+      display: grid;
+      grid-template-columns: minmax(240px, 0.85fr) minmax(0, 1.15fr);
+      gap: 1rem;
+    }
+
+    .activity-switcher { display: flex; flex-direction: column; gap: 0.65rem; }
+
+    .activity-btn {
+      width: 100%;
+      padding: 0.9rem 1rem;
+      border-radius: var(--raggio);
+      border: var(--bordo);
+      background: rgba(255,255,255,0.04);
+      color: var(--bianco);
+      font-family: var(--font-sans);
+      text-align: left;
+      cursor: pointer;
+      transition: background 0.2s, border-color 0.2s, transform 0.2s, box-shadow 0.2s;
+    }
+
+    .activity-btn strong { display: block; margin-bottom: 0.2rem; font-size: 0.96rem; }
+    .activity-btn span   { display: block; color: var(--bianco-muted); font-size: 0.85rem; line-height: 1.4; }
+
+    .activity-btn:hover    { transform: translateX(4px); border-color: rgba(96,165,250,0.38); }
+    .activity-btn.is-active {
+      background: rgba(37,99,235,0.22);
+      border-color: rgba(96,165,250,0.52);
+      box-shadow: 0 6px 20px rgba(0,0,0,0.22);
+      transform: translateX(4px);
+    }
+
+    /* Dettaglio attività */
+    .activity-detail {
+      padding: 1.1rem;
+      border-radius: var(--raggio);
+      background: rgba(255,255,255,0.04);
+      border: var(--bordo);
+      display: flex;
+      flex-direction: column;
+      gap: 0.9rem;
+    }
+
+    .detail-kicker {
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      color: var(--blu-chiaro);
+    }
+
+    .activity-detail h3 { font-size: 1.25rem; font-weight: 800; }
+
+    .activity-detail p  { color: var(--bianco-muted); line-height: 1.78; margin: 0; }
+
+    .activity-detail ul {
+      list-style: disc;
+      padding-left: 1.2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.45rem;
+      color: var(--bianco-muted);
+      line-height: 1.65;
+    }
+
+    /* Tag tecnologia (Flexbox) */
+    .tag-row { display: flex; flex-wrap: wrap; gap: 0.55rem; }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.35rem 0.75rem;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.06);
+      border: var(--bordo);
+      font-size: 0.84rem;
+      color: var(--bianco-muted);
+    }
+
+    /* Progress bar attività */
+    .activity-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      flex-wrap: wrap;
+      padding-top: 0.6rem;
+      border-top: 1px solid rgba(255,255,255,0.07);
+    }
+
+    .activity-footer strong { font-size: 0.9rem; }
+    .activity-footer span   { font-size: 0.85rem; color: var(--bianco-muted); }
+
+    .progress-bg {
+      flex: 1;
+      min-width: 180px;
+      height: 10px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.08);
+      border: var(--bordo);
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, var(--blu-accent), #60a5fa);
+      transition: width 0.42s ease;
+    }
+
+    /* ── Badge skill interattivi (JS filtrabile) ─────────────── */
+    /* Questa è la feature JavaScript caratteristica del 4° anno */
+
+    .skills-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      margin-bottom: 1.1rem;
+    }
+
+    /* Filtri */
+    .filter-bar { display: flex; flex-wrap: wrap; gap: 0.45rem; }
+
+    .filter-btn {
+      padding: 0.38rem 0.85rem;
+      border-radius: 999px;
+      border: var(--bordo);
+      background: rgba(255,255,255,0.04);
+      color: var(--bianco-muted);
+      font-family: var(--font-sans);
+      font-size: 0.84rem;
+      cursor: pointer;
+      transition: background 0.2s, border-color 0.2s, color 0.2s;
+    }
+
+    .filter-btn:hover { border-color: rgba(96,165,250,0.38); color: var(--bianco); }
+
+    .filter-btn.is-active {
+      background: var(--blu-accent);
+      border-color: var(--blu-accent);
+      color: #fff;
+    }
+
+    /* Badge skill (Grid auto-fill) */
+    .skill-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+      gap: 0.7rem;
+    }
+
+    .skill-badge {
+      padding: 0.85rem 1rem;
+      border-radius: var(--raggio);
+      background: rgba(255,255,255,0.05);
+      border: var(--bordo);
+      display: flex;
+      flex-direction: column;
+      gap: 0.3rem;
+      cursor: default;
+      transition: background 0.22s, border-color 0.22s, transform 0.22s, box-shadow 0.22s;
+    }
+
+    .skill-badge:hover {
+      background: rgba(37,99,235,0.18);
+      border-color: rgba(96,165,250,0.42);
+      transform: translateY(-3px);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.26);
+    }
+
+    .skill-badge[aria-hidden="true"] { display: none; }
+
+    .skill-name {
+      font-weight: 700;
+      font-size: 0.94rem;
+      color: var(--bianco);
+    }
+
+    .skill-cat {
+      font-size: 0.78rem;
+      color: var(--blu-chiaro);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      font-weight: 700;
+    }
+
+    .skill-desc {
+      font-size: 0.84rem;
+      color: var(--bianco-muted);
+      line-height: 1.55;
+    }
+
+    /* ── Difficoltà: Grid 2 colonne ─────────────────────────── */
+    .difficulty-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.8rem;
+    }
+
+    .diff-card {
+      padding: 1rem;
+      border-radius: var(--raggio);
+      background: rgba(255,255,255,0.04);
+      border: var(--bordo);
+      transition: border-color 0.2s;
+    }
+
+    .diff-card:hover { border-color: rgba(96,165,250,0.32); }
+
+    .diff-card h3  { font-size: 1rem; font-weight: 700; margin-bottom: 0.4rem; }
+    .diff-card p   { color: var(--bianco-muted); line-height: 1.72; font-size: 0.92rem; margin: 0; }
+
+    /* ── Tutor & footer section ──────────────────────────────── */
+    .tutor-grid {
+      display: grid;
+      grid-template-columns: minmax(0,1.1fr) minmax(260px,0.9fr);
+      gap: 1rem;
+    }
+
+    .tutor-card, .quote-card {
+      padding: 1.1rem;
+      border-radius: var(--raggio);
+      background: rgba(255,255,255,0.04);
+      border: var(--bordo);
+    }
+
+    .tutor-card h3, .quote-card h3 { font-size: 1rem; font-weight: 700; margin-bottom: 0.5rem; }
+    .tutor-card p, .quote-card p   { color: var(--bianco-muted); line-height: 1.75; margin: 0 0 0.6rem; font-size: 0.92rem; }
+    .tutor-card p:last-child, .quote-card p:last-child { margin-bottom: 0; }
+
+    .quote-stack { display: flex; flex-direction: column; gap: 0.7rem; }
+
+    .quote-card strong {
+      display: block;
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--blu-chiaro);
+      margin-bottom: 0.4rem;
+    }
+
+    /* Footer sezione */
+    .section-bottom {
+      margin-top: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+    }
+
+    .live-chip {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.38rem 0.9rem;
+      border-radius: 999px;
+      border: var(--bordo);
+      background: rgba(255,255,255,0.05);
+      font-size: 0.85rem;
+      color: var(--bianco-muted);
+    }
+
+    /* ── Responsive ─────────────────────────────────────────── */
+    @media (max-width: 1024px) {
+      .hero-inner, .company-grid, .activity-layout,
+      .tutor-grid { grid-template-columns: 1fr; }
+      .difficulty-grid { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 600px) {
+      .page-main  { width: 100%; padding: 0.75rem 0.75rem 2.5rem; }
+      .panel      { border-radius: var(--raggio); padding: 1rem; }
+      .page-hero  { border-radius: var(--raggio); }
+      .hero-facts { grid-template-columns: 1fr; }
+      .stat-grid  { grid-template-columns: 1fr; }
+      .activity-btn:hover { transform: none; }
+      .activity-btn.is-active { transform: none; }
+    }
+  </style>
+</head>
+<body>
+  <script>
+    const SESSION_KEY = 'pcto-demo-user';
+    if (!sessionStorage.getItem(SESSION_KEY)) {
+      window.location.replace('../index.html#accesso');
+    } else {
+      document.body.classList.add('is-authenticated');
+    }
+  </script>
+
+  <!-- ══════════════════════════════════════════
+       NAVBAR — identica su tutte e tre le pagine
+  ══════════════════════════════════════════════ -->
+  <header class="site-header">
+    <nav class="site-nav" aria-label="Navigazione principale">
+      <a class="nav-brand" href="../index.html">
+        <span class="brand-badge">PCTO</span>
+        <span class="brand-label">Roberto Carello</span>
+      </a>
+      <button class="nav-toggle" aria-label="Apri menu" aria-expanded="false" id="nav-toggle">
+        <svg width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <line x1="3" y1="6" x2="19" y2="6"/>
+          <line x1="3" y1="11" x2="19" y2="11"/>
+          <line x1="3" y1="16" x2="19" y2="16"/>
+        </svg>
+      </button>
+      <ul class="nav-links" id="nav-links">
+        <li><a href="../index.html"     class="nav-link">Home (5°)</a></li>
+        <li><a href="terza.html"        class="nav-link">Stage 3° Anno</a></li>
+        <li><a href="quarta.html"       class="nav-link nav-link--active">Stage 4° Anno</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <!-- ══════════════════════════════════════════
+       MAIN — contenuto 4° anno
+       Stile: Flexbox + Grid + JavaScript
+       Messaggio: "evoluzione dinamica"
+  ══════════════════════════════════════════════ -->
+  <main class="page-main">
+
+    <!-- ── Hero ────────────────────────────────────────────── -->
+    <section class="page-hero" id="top">
+      <div class="hero-inner">
+        <div class="hero-copy">
+          <p class="eyebrow">Diario di bordo 2024/2025</p>
+          <h1>Esperienza PCTO<br><em>4° Anno</em></h1>
+          <p>
+            Stage presso <strong>Trend Servizi S.R.L.</strong> a Castiglione delle Stiviere,
+            dall'<strong>11/11/2024 al 30/11/2024</strong>. Hardware, networking, Go, Dart
+            e supporto tecnico clienti.
+          </p>
+          <div class="hero-actions">
+            <a class="btn" href="#azienda">Scopri l'azienda</a>
+            <a class="btn btn--ghost" href="#competenze">Vedi le skill</a>
+          </div>
+          <ul class="hero-chips" aria-label="Sintesi rapida">
+            <li class="hero-chip">Classe 4I Informatica</li>
+            <li class="hero-chip">~20 dipendenti</li>
+            <li class="hero-chip">Hardware · Software · Reti</li>
+            <li class="hero-chip">Go · Dart · MikroTik</li>
+          </ul>
+        </div>
+
+        <aside class="hero-card" aria-label="Scheda riepilogo">
+          <div class="company-mark">
+            <div class="mark-badge">TS</div>
+            <div class="mark-info">
+              <p>Stage presso</p>
+              <h2>Trend Servizi S.R.L.</h2>
+              <p>Castiglione delle Stiviere</p>
+            </div>
+          </div>
+          <img class="trend-logo" src="../image/trend-servizi_logo.png" alt="Logo Trend Servizi S.R.L.">
+          <dl class="hero-facts">
+            <div class="fact">
+              <dt>Periodo</dt>
+              <dd>11/11 – 30/11/2024</dd>
+            </div>
+            <div class="fact">
+              <dt>Settore</dt>
+              <dd>IT, hardware, reti</dd>
+            </div>
+            <div class="fact">
+              <dt>Tutor scolastico</dt>
+              <dd>Bignotti Paolo</dd>
+            </div>
+            <div class="fact">
+              <dt>Team aziendale</dt>
+              <dd>Luca, Daniele, Nicola, Anna, Michele</dd>
+            </div>
+          </dl>
+        </aside>
+      </div>
+    </section>
+
+    <!-- ── Azienda ──────────────────────────────────────────── -->
+    <section class="panel reveal" id="azienda">
+      <div class="section-head">
+        <p class="eyebrow">L'azienda ospite</p>
+        <h2>Trend Servizi S.R.L. e il contesto di lavoro</h2>
+        <p class="section-note">
+          Un ambiente tecnico su più piani, con reparti distinti — dalla segreteria
+          all'ufficio tecnico e ai magazzini — dove ogni giornata portava attività diverse.
+        </p>
+      </div>
+
+      <div class="company-grid">
+        <article class="company-story">
+          <p>
+            Trend Servizi si occupa di soluzioni software e hardware per aziende,
+            punti vendita e ristorazione. Offre gestionali per amministrazione,
+            logistica, hotel, ristoranti e negozi, oltre a sistemi per digital signage
+            e automazione.
+          </p>
+          <p>
+            L'azienda ha oltre quarant'anni di esperienza nel settore IT e delle
+            macchine per l'ufficio. L'obiettivo è supportare aziende, industrie,
+            professionisti e pubbliche amministrazioni con soluzioni personalizzate.
+          </p>
+          <p>
+            Opera principalmente su Brescia, Mantova, Verona, Cremona e il Lago di Garda,
+            con assistenza a livello nazionale per i rivenditori dei propri prodotti.
+          </p>
+        </article>
+
+        <aside>
+          <div class="stat-grid">
+            <div class="stat-card"><strong>Forma giuridica</strong><span>S.R.L.</span></div>
+            <div class="stat-card"><strong>Dipendenti</strong><span>~20</span></div>
+            <div class="stat-card"><strong>Sede</strong><span>Castiglione delle Stiviere</span></div>
+            <div class="stat-card"><strong>Attività</strong><span>Software, hardware, reti</span></div>
+          </div>
+          <div class="office-flex" aria-label="Spazi interni">
+            <article class="office-card">
+              <h3>Piano terra</h3>
+              <p>Accoglienza e segreteria — primo contatto con i clienti.</p>
+            </article>
+            <article class="office-card">
+              <h3>Piani medi</h3>
+              <p>Amministrazione, sala riunioni e zona ristoro.</p>
+            </article>
+            <article class="office-card">
+              <h3>Ultimo piano</h3>
+              <p>Ufficio tecnico, magazzini con toner, stampanti e periferiche.</p>
+            </article>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <!-- ── Attività ─────────────────────────────────────────── -->
+    <section class="panel reveal" id="attivita">
+      <div class="section-head">
+        <p class="eyebrow">Attività svolte</p>
+        <h2>Diario di bordo per gruppi di lavoro</h2>
+        <p class="section-note">
+          Le attività sono raggruppate per tema per rendere più chiara la spiegazione
+          orale, seguendo il diario originale.
+        </p>
+      </div>
+
+      <div class="activity-layout">
+        <!-- Switcher (JS) -->
+        <div class="activity-switcher" role="tablist" aria-label="Gruppi di attività">
+          <button class="activity-btn is-active" type="button" data-activity="0" aria-pressed="true">
+            <strong>Giorni 1–5</strong>
+            <span>Hardware, installazioni e configurazioni iniziali</span>
+          </button>
+          <button class="activity-btn" type="button" data-activity="1" aria-pressed="false">
+            <strong>Giorni 6–10</strong>
+            <span>Sistemi operativi, rete e piccoli sviluppi</span>
+          </button>
+          <button class="activity-btn" type="button" data-activity="2" aria-pressed="false">
+            <strong>Giorni 11–15</strong>
+            <span>Supporto tecnico, clienti e magazzino</span>
+          </button>
+          <button class="activity-btn" type="button" data-activity="3" aria-pressed="false">
+            <strong>Attività osservate</strong>
+            <span>Rete, fibra ottica e formazione sul campo</span>
+          </button>
+        </div>
+
+        <!-- Dettaglio attività (aggiornato da JS) -->
+        <article class="activity-detail" aria-live="polite">
+          <p class="detail-kicker" id="act-kicker">Giorni 1–5</p>
+          <h3 id="act-title">Hardware, installazioni e configurazioni iniziali</h3>
+          <p id="act-summary">
+            Nella prima fase ho lavorato soprattutto su computer e periferiche,
+            prendendo confidenza con gli strumenti aziendali.
+          </p>
+          <ul id="act-points">
+            <li>Assemblaggio di due computer da consegnare ai clienti.</li>
+            <li>Installazione di un antivirus tramite USB e configurazione access point con Aruba.</li>
+            <li>Ri-associazione tastiere Logitech, backup portatile, scheda di espansione su stampante industriale.</li>
+            <li>Verifica schermi intelligenti, UPS e assemblaggio PC con sistema operativo e driver.</li>
+          </ul>
+          <div class="tag-row" id="act-tags">
+            <span class="tag">PC</span>
+            <span class="tag">Aruba</span>
+            <span class="tag">Logitech</span>
+            <span class="tag">UPS</span>
+          </div>
+          <div class="activity-footer">
+            <div>
+              <strong id="act-status">Focus: hardware e setup</strong>
+              <span id="act-note">Tecniche di base per interventi di manutenzione e consegna.</span>
+            </div>
+            <div class="progress-bg">
+              <div class="progress-fill" id="act-bar" style="width:28%"></div>
+            </div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- ── Badge skill interattivi (feature JS del 4° anno) ──── -->
+    <section class="panel reveal" id="competenze">
+      <div class="skills-header">
+        <div class="section-head" style="margin-bottom:0">
+          <p class="eyebrow">Competenze acquisite</p>
+          <h2>Badge skill interattivi</h2>
+        </div>
+        <!-- Filtri per categoria — JavaScript -->
+        <div class="filter-bar" role="group" aria-label="Filtra per categoria">
+          <button class="filter-btn is-active" type="button" data-filter="hardware">Hardware</button>
+          <button class="filter-btn" type="button" data-filter="networking">Networking</button>
+          <button class="filter-btn" type="button" data-filter="software">Software</button>
+          <button class="filter-btn" type="button" data-filter="soft">Soft skill</button>
+        </div>
+      </div>
+
+      <div class="skill-grid" id="skill-grid">
+        <!-- I badge vengono generati da JavaScript qui sotto -->
+      </div>
+    </section>
+
+    <!-- ── Difficoltà ────────────────────────────────────────── -->
+    <section class="panel reveal" id="difficolta">
+      <div class="section-head">
+        <p class="eyebrow">Difficoltà incontrate</p>
+        <h2>Le parti più impegnative del percorso</h2>
+        <p class="section-note">
+          Le difficoltà fanno parte del percorso: le ho affrontate soprattutto quando il
+          lavoro richiedeva conoscenze nuove o una visione più ampia dei progetti.
+        </p>
+      </div>
+
+      <div class="difficulty-grid">
+        <article class="diff-card">
+          <h3>Rete e indirizzi IP</h3>
+          <p>
+            Comprendere rapidamente la logica di indirizzi IP e maschere di rete
+            è stato impegnativo, soprattutto nella configurazione pratica e
+            nell'identificazione di eventuali problemi di connessione.
+          </p>
+        </article>
+        <article class="diff-card">
+          <h3>Nuovi linguaggi</h3>
+          <p>
+            Go e Dart richiedevano un modo di ragionare nuovo: programmazione funzionale,
+            funzioni asincrone e JSON erano concetti più complessi rispetto ai linguaggi
+            studiati a scuola.
+          </p>
+        </article>
+        <article class="diff-card">
+          <h3>Progetti condivisi</h3>
+          <p>
+            Coordinare un progetto con più programmatori, gestire dipendenze e versioni
+            su GitHub, e unire backend e frontend ha rappresentato un livello di
+            complessità nuovo.
+          </p>
+        </article>
+        <article class="diff-card">
+          <h3>Precisione e contesto aziendale</h3>
+          <p>
+            La giunzione della fibra ottica richiedeva precisione estrema, mentre
+            adattarsi a una realtà grande e interconnessa ha richiesto tempo per capire
+            flussi, reparti e responsabilità.
+          </p>
+        </article>
+      </div>
+    </section>
+
+    <!-- ── Tutor ─────────────────────────────────────────────── -->
+    <section class="panel reveal" id="tutor">
+      <div class="section-head">
+        <p class="eyebrow">Rapporto con il tutor</p>
+        <h2>Supporto, autonomia e lavoro sul campo</h2>
+        <p class="section-note">
+          Il tutor aziendale ha reso possibile un'esperienza molto varia tra ufficio,
+          supporto ai clienti e osservazione di lavori esterni.
+        </p>
+      </div>
+
+      <div class="tutor-grid">
+        <article class="tutor-card">
+          <h3>Rapporto con il tutor aziendale</h3>
+          <p>
+            Il rapporto con il tutor è stato estremamente positivo e collaborativo.
+            Mi ha spiegato le basi, lasciandoci arrivare alla soluzione ragionando
+            insieme, rimanendo disponibile per ogni dubbio.
+          </p>
+          <p>
+            Mi ha permesso di collaborare con tecnici, sistemisti e programmatori
+            diversi, offrendo una panoramica ampia e concreta del funzionamento aziendale.
+          </p>
+        </article>
+
+        <div class="quote-stack">
+          <article class="quote-card">
+            <strong>Lavori esterni</strong>
+            <p>
+              Ho seguito il tutor anche fuori sede, ad esempio durante la giunzione
+              della fibra ottica presso il multisala "King".
+            </p>
+          </article>
+          <article class="quote-card">
+            <strong>Interazione con l'azienda</strong>
+            <p>
+              Incontrare molte persone con ruoli diversi ha reso lo stage più completo
+              e mi ha aiutato a capire come funziona un'organizzazione strutturata.
+            </p>
+          </article>
+        </div>
+      </div>
+
+      <div class="section-bottom">
+        <span class="live-chip" id="live-clock">--:--</span>
+        <a href="../index.html" class="btn">← Torna alla Home</a>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ══════════════════════════════════════════
+       FOOTER — identico su tutte e tre le pagine
+  ══════════════════════════════════════════════ -->
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <p class="footer-copy">© 2025 Roberto Carello — Portfolio PCTO · Classe 5I Informatica</p>
+      <nav class="footer-nav" aria-label="Link rapidi">
+        <a href="../index.html">Home (5°)</a>
+        <a href="terza.html">Stage 3°</a>
+        <a href="quarta.html">Stage 4°</a>
+      </nav>
+    </div>
+  </footer>
+
+  <!-- ══════════════════════════════════════════
+       JAVASCRIPT — Livello 4°: intermedio
+       - Generazione dinamica badge skill
+       - Filtro per categoria (classList toggle)
+       - Switcher attività (array di dati → DOM)
+       - IntersectionObserver per reveal
+       - Orologio live
+  ══════════════════════════════════════════════ -->
+  <script>
+    /* ─── Dati badge skill ──────────────────────────────────────
+       Ogni skill ha: nome, categoria, descrizione.
+       Generati dinamicamente in DOM (pattern del 4° anno).       */
+    const SKILLS = [
+      // Hardware
+      { name: 'Assemblaggio PC',       cat: 'hardware',    desc: 'Montaggio completo con OS e driver.' },
+      { name: 'UPS & Periferiche',     cat: 'hardware',    desc: 'Verifica schermi intelligenti e UPS.' },
+      { name: 'Stampante industriale', cat: 'hardware',    desc: 'Montaggio scheda di espansione.' },
+      { name: 'Hard disk testing',     cat: 'hardware',    desc: 'Test con Ubuntu Live per HDD.' },
+      { name: 'Toner & Magazzino',     cat: 'hardware',    desc: 'Preparazione e spedizione materiali.' },
+
+      // Networking
+      { name: 'Aruba InstantOn',       cat: 'networking',  desc: 'Configurazione access point e SSID.' },
+      { name: 'MikroTik WinBox',       cat: 'networking',  desc: 'Collegamento e config router MikroTik.' },
+      { name: 'Subnet & IP',           cat: 'networking',  desc: 'Riassociazione indirizzi e sottoreti.' },
+      { name: 'Firewall',              cat: 'networking',  desc: 'Verifica software e configurazioni.' },
+      { name: 'Fibra ottica',          cat: 'networking',  desc: 'Osservazione giunzione multisala "King".' },
+
+      // Software
+      { name: 'Go (Golang)',           cat: 'software',    desc: 'Programma base e decodifica JWT.' },
+      { name: 'Dart',                  cat: 'software',    desc: 'Progetto casse automatiche Tavolinux.' },
+      { name: 'Rufus + Ubuntu',        cat: 'software',    desc: 'Dual boot Windows/Ubuntu su TCXWave.' },
+      { name: 'Tavolinux',             cat: 'software',    desc: 'Manuale operativo e test funzionalità.' },
+      { name: 'GetYourCash / POS',     cat: 'software',    desc: 'Installazione e verifica su POS.' },
+      { name: 'MPS Monitor',           cat: 'software',    desc: 'Monitoraggio stampanti e toner.' },
+
+      // Soft skill
+      { name: 'Problem solving',       cat: 'soft',        desc: 'Diagnosi e risoluzione guasti.' },
+      { name: 'Accoglienza clienti',   cat: 'soft',        desc: 'Gestione front-office e email.' },
+      { name: 'Team working',          cat: 'soft',        desc: 'Collaborazione con tecnici e colleghi.' },
+      { name: 'Documentazione',        cat: 'soft',        desc: 'Creazione manuali su Canva.' },
+    ];
+
+    /* Genera i badge nel DOM */
+    const skillGrid = document.getElementById('skill-grid');
+
+    SKILLS.forEach(skill => {
+      const el = document.createElement('div');
+      el.className = 'skill-badge';
+      el.dataset.cat = skill.cat;
+      el.setAttribute('tabindex', '0');
+      el.innerHTML = `
+        <span class="skill-cat">${skill.cat}</span>
+        <span class="skill-name">${skill.name}</span>
+        <span class="skill-desc">${skill.desc}</span>
+      `;
+      skillGrid.appendChild(el);
+    });
+
+    /* Filtro badge per categoria */
+    const filterBtns = Array.from(document.querySelectorAll('.filter-btn'));
+
+    filterBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const filter = btn.dataset.filter;
+
+        // Aggiorna pulsanti attivi
+        filterBtns.forEach(b => b.classList.remove('is-active'));
+        btn.classList.add('is-active');
+
+        // Mostra/nascondi badge
+        Array.from(skillGrid.children).forEach(badge => {
+          const show = filter === 'all' || badge.dataset.cat === filter;
+          badge.setAttribute('aria-hidden', show ? 'false' : 'true');
+        });
+      });
+    });
+
+    /* ─── Dati switcher attività ────────────────────────────── */
+    const ACTIVITIES = [
+      {
+        kicker: 'Giorni 1–5', status: 'Focus: hardware e setup', progress: 28,
+        title: 'Hardware, installazioni e configurazioni iniziali',
+        summary: 'Nella prima fase ho lavorato soprattutto su computer e periferiche, prendendo confidenza con gli strumenti aziendali.',
+        points: [
+          'Assemblaggio di due computer da consegnare ai clienti.',
+          'Installazione di un antivirus tramite USB e configurazione access point con Aruba.',
+          'Ri-associazione tastiere Logitech, backup portatile, scheda espansione su stampante industriale.',
+          'Verifica schermi intelligenti, UPS e assemblaggio PC con sistema operativo e driver.',
+        ],
+        tags: ['PC', 'Aruba', 'Logitech', 'UPS'],
+        note: 'Tecniche di base per interventi di manutenzione e consegna.',
+      },
+      {
+        kicker: 'Giorni 6–10', status: 'Focus: sistemi e rete', progress: 54,
+        title: 'Sistemi operativi, rete e piccoli sviluppi',
+        summary: 'Dal dual boot ai programmi in Go, questa fase ha unito installazioni, rete e sviluppo software.',
+        points: [
+          'Configurazione chiavetta Rufus per Ubuntu in dual boot con Windows.',
+          'Installazione Windows su Toshiba TCXWave, modifica priorità di boot, aggiornamenti di sicurezza.',
+          'Manuale per Tavolinux su Canva e modifica indirizzi Aruba InstantOn.',
+          'Sviluppo programma base in Go e programma che decodifica/verifica un token JWT.',
+        ],
+        tags: ['Rufus', 'Ubuntu', 'Go', 'WinBox'],
+        note: 'Inizio della fusione tra installazioni, rete e piccole attività di sviluppo.',
+      },
+      {
+        kicker: 'Giorni 11–15', status: 'Focus: supporto operativo', progress: 82,
+        title: 'Supporto tecnico, clienti e magazzino',
+        summary: 'Nella parte finale ho gestito attività più varie: materiali, supporto operativo, test e interazione con i clienti.',
+        points: [
+          'Ordinamento cavi, spostamento postazione e scarico furgone nel magazzino.',
+          'Test hard disk con Ubuntu, collegamento router MikroTik, verifica firewall.',
+          'Correzione app QR code, installazione GetYourCash su POS, verifica Tavolinux.',
+          'Accoglienza clienti, gestione email, impegni nel software aziendale, toner per spedizione.',
+        ],
+        tags: ['POS', 'QR code', 'MPS Monitor', 'Toner'],
+        note: 'Lavoro più vicino alla gestione reale dell\'azienda e ai bisogni dei clienti.',
+      },
+      {
+        kicker: 'Attività osservate', status: 'Focus: osservazione e formazione', progress: 68,
+        title: 'Rete, fibra ottica e formazione sul campo',
+        summary: 'Ho osservato diversi interventi tecnici e di formazione che hanno completato il quadro aziendale.',
+        points: [
+          'Visione ambiente Aruba dopo collegamento di quattro access point allo switch.',
+          'Aggiornamento registratori di cassa, formazione Tavolinux, progetto Dart per casse automatiche.',
+          'Telefonate assistenza, rinnovo licenze, giunzione fibra nel multisala "King".',
+          'Approfondimento rete aziendale, firewall e configurazioni separate per stampanti e server.',
+        ],
+        tags: ['Dart', 'Aruba', 'Fibra', 'Firewall'],
+        note: 'Queste osservazioni hanno completato il quadro della realtà aziendale.',
+      },
+    ];
+
+    /* Riferimenti DOM switcher */
+    const actBtns   = Array.from(document.querySelectorAll('.activity-btn'));
+    const actKicker  = document.getElementById('act-kicker');
+    const actTitle   = document.getElementById('act-title');
+    const actSummary = document.getElementById('act-summary');
+    const actPoints  = document.getElementById('act-points');
+    const actTags    = document.getElementById('act-tags');
+    const actStatus  = document.getElementById('act-status');
+    const actNote    = document.getElementById('act-note');
+    const actBar     = document.getElementById('act-bar');
+
+    function renderActivity(i) {
+      const a = ACTIVITIES[i];
+      actBtns.forEach((btn, idx) => {
+        btn.classList.toggle('is-active', idx === i);
+        btn.setAttribute('aria-pressed', String(idx === i));
+      });
+      actKicker.textContent  = a.kicker;
+      actTitle.textContent   = a.title;
+      actSummary.textContent = a.summary;
+      actPoints.innerHTML    = a.points.map(p => `<li>${p}</li>`).join('');
+      actTags.innerHTML      = a.tags.map(t => `<span class="tag">${t}</span>`).join('');
+      actStatus.textContent  = a.status;
+      actNote.textContent    = a.note;
+      actBar.style.width     = `${a.progress}%`;
+    }
+
+    actBtns.forEach(btn =>
+      btn.addEventListener('click', () => renderActivity(Number(btn.dataset.activity)))
+    );
+
+    /* ─── IntersectionObserver per reveal ──────────────────── */
+    const panels = document.querySelectorAll('.reveal');
+
+    if ('IntersectionObserver' in window) {
+      const observer = new IntersectionObserver(entries => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('visible');
+            observer.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.15 });
+      panels.forEach(p => observer.observe(p));
+    } else {
+      panels.forEach(p => p.classList.add('visible'));
+    }
+
+    /* ─── Orologio live ─────────────────────────────────────── */
+    const liveClock = document.getElementById('live-clock');
+    function updateClock() {
+      liveClock.textContent = new Intl.DateTimeFormat('it-IT', {
+        hour: '2-digit', minute: '2-digit'
+      }).format(new Date());
+    }
+    updateClock();
+    setInterval(updateClock, 60_000);
+
+    /* ─── Hamburger mobile ──────────────────────────────────── */
+    const navToggle = document.getElementById('nav-toggle');
+    const navLinks  = document.getElementById('nav-links');
+    navToggle.addEventListener('click', () => {
+      const open = navLinks.classList.toggle('is-open');
+      navToggle.setAttribute('aria-expanded', String(open));
+    });
+
+    /* Inizializzazione */
+    filterBtns[0].click();
+    renderActivity(0);
+  </script>
+</body>
+</html>
