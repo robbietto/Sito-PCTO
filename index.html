@@ -6,6 +6,7 @@
   <meta name="description" content="Portfolio PCTO di Roberto Carello — Home interattiva con login demo e presentazione del percorso.">
   <title>Portfolio PCTO — Roberto Carello</title>
   <link rel="icon" href="image/favicon.jpg" type="image/jpeg">
+  <link rel="preload" href="image/backend.jpg" as="image">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
 
@@ -97,25 +98,6 @@
       flex-wrap: wrap;
     }
 
-    .nav-brand {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.75rem;
-      padding: 0;
-      border: 0;
-      min-height: 0;
-      background: transparent;
-      color: var(--text);
-      text-decoration: none;
-    }
-
-    .nav-brand:hover,
-    .nav-brand:focus-visible {
-      background: transparent;
-      border-color: transparent;
-      transform: none;
-    }
-
     .brand-badge {
       display: inline-flex;
       align-items: center;
@@ -123,8 +105,9 @@
       min-width: 4.1rem;
       padding: 0.5rem 0.85rem;
       border-radius: 999px;
-      background: linear-gradient(135deg, var(--accent), var(--accent-strong));
-      color: #08111d;
+      /* Usa i due toni blu del tema per coerenza visiva */
+      background: linear-gradient(135deg, var(--accent), var(--accent-deep));
+      color: #ffffff;
       font-weight: 800;
       letter-spacing: 0.08em;
     }
@@ -597,30 +580,62 @@
       transform: translateX(3px);
     }
 
-    /* Modifica al pannello dei tab per ospitare l'immagine */
+    /* Pannello tab con immagine di sfondo dinamica */
     .tab-panel {
-    position: relative;
-    padding: 2rem; /* Aumentato per dare respiro */
-    border-radius: var(--raggio);
-    border: var(--bordo);
-    display: grid;
-    gap: 1rem;
-    
-    /* Setup per l'immagine dinamica */
-    background-size: cover;
-    background-position: center;
-    transition: background-image 0.5s ease-in-out; /* Transizione fluida */
-    
-    /* Overlay scuro per leggibilità (Glassmorphism rinforzato) */
-    box-shadow: inset 0 0 0 2000px rgba(255, 255, 255, 0.72); 
-    backdrop-filter: blur(4px);
+      position: relative;
+      padding: 2rem;
+      border-radius: var(--raggio);
+      border: var(--bordo);
+      display: grid;
+      gap: 1rem;
+      overflow: hidden;
+      min-height: 320px;
     }
 
-    /* Assicuriamoci che il testo risalti sullo sfondo */
-    .tab-panel h3, .tab-panel p, .tab-panel ul, .tab-kicker {
+    /* Overlay principale: scurimento per leggibilità del testo */
+    .tab-panel::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      pointer-events: none;
+      background: linear-gradient(180deg, rgba(0,0,0,0.48), rgba(0,0,0,0.18));
+      z-index: 1;
+    }
+
+    /* Overlay secondario: tinta armonica */
+    .tab-panel::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      pointer-events: none;
+      background: linear-gradient(135deg, rgba(47,159,224,0.06), rgba(241,163,64,0.04));
+      mix-blend-mode: soft-light;
+      z-index: 2;
+    }
+
+    /* Immagine di sfondo gestita via JS con fade */
+    .tab-panel .bg-img {
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      opacity: 0;
+      transition: opacity 450ms ease;
+      border-radius: inherit;
+      will-change: opacity;
+    }
+
+    /* Tutto il testo nel tab-panel sopra gli overlay */
+    .tab-panel h3, .tab-panel p, .tab-panel ul,
+    .tab-kicker, .dyn-footer {
     position: relative;
-    z-index: 2;
-    text-shadow: 0 2px 4px rgba(15,27,46,0.18);
+    z-index: 3;
+    color: #ffffff;
+    text-shadow: 0 3px 8px rgba(2,8,16,0.6);
     }
 
     .tab-panel ul {
@@ -629,25 +644,91 @@
     border-radius: var(--raggio);
     }
 
-    /* Barra avanzamento */
-    .progress-wrap { display: grid; gap: 0.4rem; margin-top: 0.5rem; }
-    .progress-top  { display: flex; justify-content: space-between; color: var(--bianco-muted); font-size: 0.88rem; }
+    /* Meter (barra progresso competenza) */
+    .meter-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 0.4rem;
+      font-size: 0.82rem;
+      color: rgba(255,255,255,0.8);
+    }
 
-    .progress-bar-bg {
-      height: 10px;
+    .meter-head strong { font-weight: 700; color: #fff; font-size: 0.9rem; }
+
+    .meter-bar {
+      height: 6px;
       border-radius: 999px;
-      background: var(--surface-strong);
-      border: var(--bordo);
+      background: rgba(255,255,255,0.2);
       overflow: hidden;
     }
 
-    .progress-bar-fill {
+    .meter-fill {
       height: 100%;
       border-radius: 999px;
-      background: linear-gradient(90deg, var(--blu-accent), var(--blu-chiaro));
-      width: 42%;
-      transition: width 0.45s ease;
+      background: linear-gradient(90deg, var(--accent), var(--accent-strong));
+      transition: width 0.5s ease;
     }
+
+    /* Capolavori: grid 3 colonne + separatori colorati tra le colonne */
+    .capo-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 1.25rem;
+      position: relative;
+      align-items: stretch; /* stretch cards to equal height */
+      padding-top: 0.5rem;
+    }
+
+    /* Allinea la sezione Capolavori alla larghezza del contenuto principale */
+    .capolavori-section {
+      width: min(1200px, calc(100% - 2rem));
+      margin: 0 auto 1.5rem;
+      padding: 0.75rem 1rem; /* spazio verticale e orizzontale per allineare il contenuto */
+      box-sizing: border-box;
+    }
+
+    /* Vertical separators using pseudo-elements so they sit between columns */
+    .capo-grid::before,
+    .capo-grid::after {
+      content: '';
+      position: absolute;
+      top: 0.6rem; /* small offset to align with cards */
+      bottom: 0.6rem;
+      width: 4px;
+      background: linear-gradient(135deg, var(--accent-deep), var(--accent));
+      border-radius: 2px;
+      z-index: 0;
+    }
+
+    /* separators at 33% and 66% */
+    .capo-grid::before { left: calc(100% / 3 - 2px); }
+    .capo-grid::after  { left: calc(200% / 3 - 2px); }
+
+    .capo-card {
+      position: relative;
+      z-index: 2; /* above separators */
+      padding: 1.15rem;
+      border-radius: var(--raggio);
+      background: linear-gradient(180deg, rgba(255,255,255,0.94), rgba(245,249,252,0.9));
+      border: var(--bordo);
+      box-shadow: var(--ombra-sm);
+      display: flex;
+      flex-direction: column;
+      gap: 0.8rem;
+      height: 100%; /* ensure equal heights when grid items stretch */
+    }
+
+    .capo-card h3 { margin: 0; font-size: 1.1rem; font-weight: 800; }
+    .capo-desc { margin: 0 0 0.5rem 0; color: var(--bianco-muted); line-height: 1.5; flex: 1; }
+    .capo-card .btn { align-self: start; padding: 0.6rem 1rem; font-size: 0.95rem; margin-top: auto; }
+
+    @media (max-width: 920px) {
+      .capo-grid { grid-template-columns: 1fr; }
+      .capo-grid::before,
+      .capo-grid::after { display: none; }
+    }
+
 
     /* Footer sezione */
     .dyn-footer {
@@ -776,6 +857,12 @@
           <line x1="3" y1="16" x2="19" y2="16"/>
         </svg>
       </button>
+      <ul class="nav-links" id="nav-links" role="list">
+        <li><a class="nav-link nav-link--active" href="#accesso">Accesso</a></li>
+        <li><a class="nav-link" href="#terza">3° anno</a></li>
+        <li><a class="nav-link" href="#quarta">4° anno</a></li>
+        <li><a class="nav-link" href="#capolavori">Capolavori</a></li>
+      </ul>
     </nav>
   </header>
 
@@ -804,11 +891,7 @@
       <!-- Lato destro: login card -->
       <aside class="login-card" id="login-card" aria-label="Accesso demo">
         <p class="eyebrow">Accesso demo</p>
-        <h2>Login in stile PHP</h2>
-        <p class="card-subtitle">
-          La sessione vive nel browser tramite sessionStorage —
-          una simulazione di quello che farebbe <code>$_SESSION</code> in PHP.
-        </p>
+        <h2>Login</h2>
 
         <!-- Form login -->
         <form class="login-form" id="login-form" novalidate>
@@ -911,18 +994,49 @@
         <li>Sviluppo in Dart per interfacce dinamiche e asincrone.</li>
         <li>Utilizzo di GitHub per il controllo di versione professionale.</li>
       </ul>
-      
-      <div class="progress-wrap">
-        <div class="progress-top">
-          <span>Livello di Complessità</span>
-          <strong id="tab-pct">85%</strong>
+      <div class="dyn-footer">
+        <div style="flex:1; min-width: 160px;">
+          <div class="meter-head">
+            <span>Livello acquisizione</span>
+            <strong id="tab-pct">85%</strong>
+          </div>
+          <div class="meter-bar">
+            <div class="meter-fill" id="tab-bar" style="width:85%"></div>
+          </div>
         </div>
-        <div class="progress-bar-bg">
-          <div class="progress-bar-fill" id="tab-bar" style="width: 85%;"></div>
-        </div>
+        <span class="chip" id="dyn-badge">Sviluppo: Go, Dart, API</span>
+        <span class="chip" id="dyn-clock">--:--</span>
       </div>
     </article>
   </div>
+    </section>
+
+    <!-- SEZIONE CAPOLAVORI 2024-2026 -->
+    <section class="content-section capolavori-section" id="capolavori">
+      <div class="section-head">
+        <p class="eyebrow">Progetti selezionati</p>
+        <h2>Capolavori 2024–2026</h2>
+      </div>
+
+      <div class="capo-grid">
+        <article class="capo-card">
+          <h3>Capolavoro 2024</h3>
+          <p class="capo-desc">Progetto principale del 2024: applicazione web per la gestione eventi, completa di autenticazione e API REST.</p>
+          <a class="btn" href="capolavori/capolavoro-2024.pdf" download>Scarica PDF</a>
+        </article>
+
+        <article class="capo-card">
+          <h3>Capolavoro 2025</h3>
+          <p class="capo-desc">Progetto 2025: tool di monitoraggio rete con dashboard e visualizzazioni in tempo reale.</p>
+          <a class="btn" href="capolavori/capolavoro-2025.pdf" download>Scarica PDF</a>
+        </article>
+
+        <article class="capo-card">
+          <h3>Capolavoro 2026</h3>
+          <p class="capo-desc">Progetto 2026: automazione di deploy e script per testing e integrazione continua.</p>
+          <a class="btn" href="capolavori/capolavoro-2026.pdf" download>Scarica PDF</a>
+        </article>
+      </div>
     </section>
 
   </main>
@@ -932,7 +1046,7 @@
   ══════════════════════════════════════════════ -->
   <footer class="site-footer">
     <div class="footer-inner">
-      <p class="footer-copy">© 2025 Roberto Carello — Portfolio PCTO · Classe 5I Informatica</p>
+      <p class="footer-copy">© 2026 Roberto Carello — Portfolio PCTO · Classe 5I Informatica</p>
     </div>
   </footer>
 
@@ -981,7 +1095,7 @@ const STEPS = [
         ],
         pct: 85,
         badge: "Sviluppo: Go, Dart, API",
-        img: "image/dev-bg.jpg" // Assicurati di avere queste immagini
+        img: "image/backend.jpg" 
     },
     {
         kicker: "Competenza 02",
@@ -994,7 +1108,7 @@ const STEPS = [
         ],
         pct: 90,
         badge: "Networking: MikroTik, Firewall",
-        img: "image/network-bg.jpg"
+        img: "image/networking.jpg"
     },
     {
         kicker: "Competenza 03",
@@ -1007,7 +1121,7 @@ const STEPS = [
         ],
         pct: 95,
         badge: "Hardware: Fibra, Assemblaggio",
-        img: "image/hardware-bg.jpg"
+        img: "image/fiber.jpg"
     }
     ];
 
@@ -1022,11 +1136,7 @@ const STEPS = [
       loginForm.hidden = true;
       sessionBox.hidden = false;
       sessionBox.removeAttribute('hidden');
-      // Messaggio di benvenuto — requisito del progetto
       sessionName.textContent = `Benvenuto nel Portfolio PCTO di Roberto Carello, ${name}!`;
-      sessionMsg.textContent = restored
-        ? 'Sessione ripristinata dal browser — come $_SESSION in PHP.'
-        : 'Sessione attiva nel browser — simulazione di $_SESSION in PHP.';
       setStatus(`Sessione demo attiva per "${name}".`, 'success');
     }
 
@@ -1044,16 +1154,6 @@ const STEPS = [
       e.preventDefault();
       const name = loginUser.value.trim();
       const pass = loginPass.value;
-
-      /*
-       * [COMMENTO 5° ANNO — Validazione lato client]
-       * In quinta aggiungerei:
-       *   - Sanitizzazione input con DOMPurify
-       *   - Rate limiting (max 5 tentativi, poi blocco 30s)
-       *   - CSRF token inviato come header X-CSRF-Token
-       *   - La vera verifica avverrebbe SOLO lato server con PHP
-       *     usando password_verify($pass, $hash_dal_db)
-       */
 
       if (!name) {
         setStatus('Inserisci un nome utente.', 'error');
@@ -1078,26 +1178,48 @@ const STEPS = [
     });
 
     /* ─── Tab dinamici ──────────────────────────────────────── */
-    /* Sostituisci la funzione renderStep con questa */
-    function renderStep(i) {
+    function renderStep(i, immediate = false) {
     const s = STEPS[i];
-    const tabPanel = document.querySelector('.tab-panel'); // Riferimento al pannello
+    const tabPanel = document.querySelector('.tab-panel');
 
     tabBtns.forEach((btn, idx) => {
         btn.classList.toggle('is-active', idx === i);
         btn.setAttribute('aria-pressed', String(idx === i));
     });
 
-    // Cambio dell'immagine con overlay incorporato
-    tabPanel.style.backgroundImage = `linear-gradient(rgba(13, 27, 42, 0.75), rgba(13, 27, 42, 0.75)), url('${s.img}')`;
+    // Gestione immagine di sfondo
+    if (tabPanel) {
+      let bg = tabPanel.querySelector('.bg-img');
+      if (!bg) {
+        bg = document.createElement('div');
+        bg.className = 'bg-img';
+        tabPanel.insertBefore(bg, tabPanel.firstChild);
+      }
 
-    tabKicker.textContent = s.kicker;
-    tabTitle.textContent  = s.title;
-    tabDesc.textContent   = s.desc;
-    tabPoints.innerHTML   = s.points.map(p => `<li>${p}</li>`).join('');
-    tabPct.textContent    = `${s.pct}%`;
-    tabBar.style.width    = `${s.pct}%`;
-    dynBadge.textContent  = s.badge;
+      if (immediate) {
+        // Primo caricamento: applica l'immagine subito senza attendere onload
+        bg.style.backgroundImage = `url('${s.img}')`;
+        bg.style.opacity = '1';
+      } else {
+        // Cambio step: fade-out, carica nuova immagine, fade-in
+        bg.style.opacity = '0';
+        const loader = new Image();
+        loader.onload = () => {
+          bg.style.backgroundImage = `url('${s.img}')`;
+          requestAnimationFrame(() => requestAnimationFrame(() => { bg.style.opacity = '1'; }));
+        };
+        loader.onerror = () => { bg.style.opacity = '0'; };
+        loader.src = s.img;
+      }
+    }
+
+    if (tabKicker) tabKicker.textContent = s.kicker;
+    if (tabTitle)  tabTitle.textContent  = s.title;
+    if (tabDesc)   tabDesc.textContent   = s.desc;
+    if (tabPoints) tabPoints.innerHTML   = s.points.map(p => `<li>${p}</li>`).join('');
+    if (tabPct)    tabPct.textContent    = `${s.pct}%`;
+    if (tabBar)    tabBar.style.width    = `${s.pct}%`;
+    if (dynBadge)  dynBadge.textContent  = s.badge;
     }
     
     tabBtns.forEach(btn =>
@@ -1106,25 +1228,38 @@ const STEPS = [
 
     /* ─── Orologio live ─────────────────────────────────────── */
     function updateClock() {
+      if (!dynClock) return;
       dynClock.textContent = new Intl.DateTimeFormat('it-IT', {
         hour: '2-digit', minute: '2-digit'
       }).format(new Date());
     }
 
     /* ─── Hamburger mobile ──────────────────────────────────── */
-    navToggle.addEventListener('click', () => {
-      const open = navLinks.classList.toggle('is-open');
-      navToggle.setAttribute('aria-expanded', String(open));
-    });
+    if (navToggle && navLinks) {
+      navToggle.addEventListener('click', () => {
+        const open = navLinks.classList.toggle('is-open');
+        navToggle.setAttribute('aria-expanded', String(open));
+      });
+    }
 
     /* ─── Inizializzazione ──────────────────────────────────── */
     updateClock();
     setInterval(updateClock, 60_000);
-    renderStep(0);
 
-    // Ripristina sessione se già presente (simula session_start() di PHP)
-    const saved = sessionStorage.getItem(SESSION_KEY);
-    if (saved) renderAuthenticated(saved, true);
+    // Primo step con immagine immediata (no attesa onload), precarica le altre in background.
+    (function preloadSteps() {
+      function preload(url) {
+        const i = new Image();
+        i.src = url;
+        return i;
+      }
+
+      renderStep(0, true);               // immagine visibile subito al caricamento
+      STEPS.slice(1).forEach(s => preload(s.img));  // precarica le altre immagini
+
+      const saved = sessionStorage.getItem(SESSION_KEY);
+      if (saved) renderAuthenticated(saved, true);
+    })();
   </script>
 </body>
 </html>
