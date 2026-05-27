@@ -599,7 +599,7 @@
       inset: 0;
       border-radius: inherit;
       pointer-events: none;
-      background: linear-gradient(180deg, rgba(0,0,0,0.48), rgba(0,0,0,0.18));
+      background: linear-gradient(180deg, rgba(0,0,0,0.48), rgba(0,0,0,0.45));
       z-index: 1;
     }
 
@@ -644,31 +644,6 @@
     border-radius: var(--raggio);
     }
 
-    /* Meter (barra progresso competenza) */
-    .meter-head {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 0.4rem;
-      font-size: 0.82rem;
-      color: rgba(255,255,255,0.8);
-    }
-
-    .meter-head strong { font-weight: 700; color: #fff; font-size: 0.9rem; }
-
-    .meter-bar {
-      height: 6px;
-      border-radius: 999px;
-      background: rgba(255,255,255,0.2);
-      overflow: hidden;
-    }
-
-    .meter-fill {
-      height: 100%;
-      border-radius: 999px;
-      background: linear-gradient(90deg, var(--accent), var(--accent-strong));
-      transition: width 0.5s ease;
-    }
 
     /* Capolavori: grid 3 colonne + separatori colorati tra le colonne */
     .capo-grid {
@@ -795,8 +770,7 @@
       }
 
       .hero-actions,
-      .section-footer,
-      .meter-head {
+      .section-footer {
         flex-direction: column;
         align-items: flex-start;
       }
@@ -995,16 +969,6 @@
         <li>Utilizzo di GitHub per il controllo di versione professionale.</li>
       </ul>
       <div class="dyn-footer">
-        <div style="flex:1; min-width: 160px;">
-          <div class="meter-head">
-            <span>Livello acquisizione</span>
-            <strong id="tab-pct">85%</strong>
-          </div>
-          <div class="meter-bar">
-            <div class="meter-fill" id="tab-bar" style="width:85%"></div>
-          </div>
-        </div>
-        <span class="chip" id="dyn-badge">Sviluppo: Go, Dart, API</span>
         <span class="chip" id="dyn-clock">--:--</span>
       </div>
     </article>
@@ -1021,20 +985,20 @@
       <div class="capo-grid">
         <article class="capo-card">
           <h3>Capolavoro 2024</h3>
-          <p class="capo-desc">Progetto principale del 2024: applicazione web per la gestione eventi, completa di autenticazione e API REST.</p>
-          <a class="btn" href="capolavori/capolavoro-2024.pdf" download>Scarica PDF</a>
+          <p class="capo-desc">Sito web in inglese per un ristorante a Creta.</p>
+          <a class="btn" href="capolavori/capolavoro_2024.pdf" download>Scarica PDF</a>
         </article>
 
         <article class="capo-card">
           <h3>Capolavoro 2025</h3>
-          <p class="capo-desc">Progetto 2025: tool di monitoraggio rete con dashboard e visualizzazioni in tempo reale.</p>
-          <a class="btn" href="capolavori/capolavoro-2025.pdf" download>Scarica PDF</a>
+          <p class="capo-desc">Sviluppo di un videogioco in Javascript.</p>
+          <a class="btn" href="capolavori/capolavoro_2025.pdf" download>Scarica PDF</a>
         </article>
 
         <article class="capo-card">
           <h3>Capolavoro 2026</h3>
-          <p class="capo-desc">Progetto 2026: automazione di deploy e script per testing e integrazione continua.</p>
-          <a class="btn" href="capolavori/capolavoro-2026.pdf" download>Scarica PDF</a>
+          <p class="capo-desc">Donazione di sangue presso AVIS Brescia.</p>
+          <a class="btn" href="capolavori/capolavoro_2026.pdf" download>Scarica PDF</a>
         </article>
       </div>
     </section>
@@ -1074,9 +1038,6 @@
     const tabTitle  = document.getElementById('tab-title');
     const tabDesc   = document.getElementById('tab-desc');
     const tabPoints = document.getElementById('tab-points');
-    const tabPct    = document.getElementById('tab-pct');
-    const tabBar    = document.getElementById('tab-bar');
-    const dynBadge  = document.getElementById('dyn-badge');
     const dynClock  = document.getElementById('dyn-clock');
     const navToggle = document.getElementById('nav-toggle');
     const navLinks  = document.getElementById('nav-links');
@@ -1093,8 +1054,6 @@ const STEPS = [
         "Sviluppo in Dart per interfacce dinamiche e asincrone",
         "Utilizzo di GitHub per il controllo di versione professionale"
         ],
-        pct: 85,
-        badge: "Sviluppo: Go, Dart, API",
         img: "image/backend.jpg" 
     },
     {
@@ -1106,8 +1065,6 @@ const STEPS = [
         "Monitoraggio del traffico e isolamento dei banchi di prova",
         "Gestione sistemi operativi Ubuntu Server e Windows"
         ],
-        pct: 90,
-        badge: "Networking: MikroTik, Firewall",
         img: "image/networking.jpg"
     },
     {
@@ -1119,8 +1076,6 @@ const STEPS = [
         "Assemblaggio PC e troubleshooting elettronico con multimetro",
         "Manutenzione hardware di POS e registratori telematici"
         ],
-        pct: 95,
-        badge: "Hardware: Fibra, Assemblaggio",
         img: "image/fiber.jpg"
     }
     ];
@@ -1217,9 +1172,6 @@ const STEPS = [
     if (tabTitle)  tabTitle.textContent  = s.title;
     if (tabDesc)   tabDesc.textContent   = s.desc;
     if (tabPoints) tabPoints.innerHTML   = s.points.map(p => `<li>${p}</li>`).join('');
-    if (tabPct)    tabPct.textContent    = `${s.pct}%`;
-    if (tabBar)    tabBar.style.width    = `${s.pct}%`;
-    if (dynBadge)  dynBadge.textContent  = s.badge;
     }
     
     tabBtns.forEach(btn =>
